@@ -3,6 +3,7 @@
 #include <vector>
 #include <math.h>
 #include <time.h>
+#include "priorityQueue.h"
 
 using namespace std;
 
@@ -12,8 +13,8 @@ float get_distance(vector<float> point1, vector<float> point2, bool use_sqrt);
 
 int main(int argc, char *argv[]) {
   if(argc < 5) {
-    printf("ERROR: Too few arguments. Please use the form: \n \
-      ./randmst flag numPoints numTrials numDimensions");
+    printf("ERROR: Too few arguments. Please use the form: \n");
+    printf("./randmst flag numPoints numTrials numDimensions \n");
     return 1;
   }
   int flag = *argv[1];
@@ -21,9 +22,9 @@ int main(int argc, char *argv[]) {
   int numTrails = *argv[3];
   int numDimensions = *argv[4];
 
-  vector<vector<float>> nodes = generate_nodes(numDimensions, numPoints);
-  float mst = prim(nodes, numDimensions, numPoints);
-  printf("Average mst: %f", mst/(numPoints - 1));
+  //vector<vector<float>> nodes = generate_nodes(numDimensions, numPoints);
+  //float mst = prim(nodes, numDimensions, numPoints);
+  //printf("Average mst: %f", mst/(numPoints - 1));
 }
 
 float prim(vector<vector<float>> nodes, int dimensions, int n) {

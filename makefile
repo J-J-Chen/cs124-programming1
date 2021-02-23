@@ -1,4 +1,7 @@
-all: randmst
+all: priorityQueue randmst
 
 randmst: randmst.cc
-	gcc -O3 -o randmst randmst.cc
+	g++ -O3 -o randmst randmst.cc
+
+priorityQueue: priorityQueue.cc
+	g++ -O3 -o priorityQueue priorityQueue.cc

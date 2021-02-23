@@ -1,6 +1,8 @@
 #include <cmath>
 #include "priorityQueue.h"
 
+int main() { return 0; }
+
 PriorityQueue::PriorityQueue(unsigned int capacity) {
   capacity_ = capacity;
   size_ = 0;
