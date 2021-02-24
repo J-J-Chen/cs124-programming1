@@ -76,7 +76,7 @@ void Randmst::generate_edges(vector<node> nodes, float max_length = 1) {
  * @return Returns either the sum of coordinates or the Euclidian distance between the points
  */
 float Randmst::get_distance(node node1, node node2, bool use_sqrt = false) {
-  float sum = 0;
+	float sum = 0;
 	float diff;
 	for (int i = 0; i < node1.coordinates->coordinates.size(); ++i)
 		diff = (node1.coordinates->coordinates[i] - node2.coordinates->coordinates[i]);
