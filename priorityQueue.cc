@@ -1,8 +1,6 @@
 #include <cmath>
 #include "priorityQueue.h"
 
-int main() { return 0; }
-
 PriorityQueue::PriorityQueue(unsigned int capacity) {
   capacity_ = capacity;
   size_ = 0;
@@ -40,9 +38,10 @@ bool PriorityQueue::add(Randmst::node val) {
   return true;
 }
 
-bool PriorityQueue::pop() {
-  if(empty()) return false;
+Randmst::node PriorityQueue::pop() {
+  //if(empty()) return false;
   heap_[1] = heap_[size_];
+  Randmst::node to_pop = heap_[size_];
   --size_;
   int i = 1;
   int larger;
@@ -54,6 +53,6 @@ bool PriorityQueue::pop() {
     heap_[larger] = temp;
     i = larger;
   }
-  return true;
+  return to_pop;
 }
 

@@ -8,13 +8,14 @@ using namespace std;
 
 class Randmst {
   public:
-    ~Randmst();
+  Randmst(int numPoints, int numDimensions);
+  ~Randmst();
   struct node;
-  vector<node> generate_nodes(int dimensions, int points);
   float prim(node *source_node, int dimensions, int n);
   float get_distance(node node1, node node2, bool use_sqrt);
   void generate_edges(vector<node> nodes, float max_length);
   vector<node> generate_nodes(int dimensions, int points, unsigned int seed);
+  void print_average();
   
   struct coordinate {
     vector<float> coordinates;
@@ -34,6 +35,9 @@ class Randmst {
     node *closest_connected = nullptr;
     float closest_distance = INFINITY;
   };
+
+  private:
+    float average;
 };
 #endif
 

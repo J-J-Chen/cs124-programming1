@@ -2,12 +2,19 @@
 #include <stdlib.h>
 #include <vector>
 #include <time.h>
+#include <math.h>
 #include "priorityQueue.h"
 #include "randmst.h"
 
 using namespace std;
 
 Randmst::~Randmst() {}
+
+Randmst::Randmst(int numPoints, int numDimensions) {
+  vector<node> nodes = generate_nodes(numDimensions, numPoints, time(NULL));
+  generate_edges(nodes, 1);
+  average = prim(&nodes[0], numDimensions, numPoints);
+}
 
 int main(int argc, char *argv[]) {
   if(argc < 5) {
@@ -20,14 +27,30 @@ int main(int argc, char *argv[]) {
   int numTrails = *argv[3];
   int numDimensions = *argv[4];
 
-  //vector<vector<float>> nodes = generate_nodes(numDimensions, numPoints);
-  //float mst = prim(nodes, numDimensions, numPoints);
-  //printf("Average mst: %f", mst/(numPoints - 1));
+  Randmst randmst(numPoints, numDimensions);
+  randmst.print_average();
 }
 
 float Randmst::prim(node *root_node, int dimensions, int n) {
-  //PriorityQueue queue(n);
-  return 0.0;
+  float total_dist = 0;
+  PriorityQueue queue(n);// = new PriorityQueue(n);
+  node to_add = *root_node;
+  for(int i = 0; i < n; ++i) {
+    for(int j = 0; j < to_add.neighbor_nodes->connected.size(); ++j) {
+      float dist = get_distance(to_add, to_add.neighbor_nodes->connected[j], false);
+      if(dist < to_add.neighbor_nodes->connected[j].closest_distance) {
+        to_add.neighbor_nodes->connected[j].closest_distance = dist;
+        queue.add(to_add.neighbor_nodes->connected[j]); //The new point is closer. May have to delete old
+      }
+    }
+    total_dist += sqrt(to_add.closest_distance); //Add the total dist
+    to_add.closest_distance = -1; //Shows that it has been added to the mst
+    to_add = queue.pop();
+    while(to_add.closest_distance < 0) {
+      to_add = queue.pop();
+    }
+  }
+  return total_dist/n;
 }
 
 /**
@@ -82,5 +105,9 @@ float Randmst::get_distance(node node1, node node2, bool use_sqrt = false) {
   if(use_sqrt)
     return sqrt(sum);
   return sum;
+}
+
+void Randmst::print_average() {
+  printf("Average: %f", average);
 }
 

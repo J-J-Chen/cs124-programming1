@@ -13,7 +13,7 @@ class PriorityQueue {
     bool print() const;
     Randmst::node top() const;
     bool add(Randmst::node val);
-    bool pop();
+    Randmst::node pop();
     void swap();
 
   private:
