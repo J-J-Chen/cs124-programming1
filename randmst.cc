@@ -11,8 +11,12 @@ using namespace std;
 Randmst::~Randmst() {}
 
 Randmst::Randmst(int numPoints, int numDimensions) {
+  printf("Bout to make nodes\n");
+  printf("numDim: %d\n",numDimensions);
   vector<node> nodes = generate_nodes(numDimensions, numPoints, time(NULL));
+  printf("Bout to make edges\n");
   generate_edges(nodes, 1);
+  printf("Made edges\n");
   average = prim(&nodes[0], numDimensions, numPoints);
 }
 
@@ -22,10 +26,12 @@ int main(int argc, char *argv[]) {
     printf("./randmst flag numPoints numTrials numDimensions \n");
     return 1;
   }
-  int flag = *argv[1];
-  int numPoints = *argv[2];
-  int numTrails = *argv[3];
-  int numDimensions = *argv[4];
+  int flag = atoi(argv[1]);
+  int numPoints = atoi(argv[2]);
+  int numTrails = atoi(argv[3]);
+  int numDimensions = atoi(argv[4]);
+
+  printf("numDim)))): %s\n", argv[4]);
 
   Randmst randmst(numPoints, numDimensions);
   randmst.print_average();
@@ -61,9 +67,11 @@ float Randmst::prim(node *root_node, int dimensions, int n) {
  * @return Returns a vector of nodes
  */
 vector<Randmst::node> Randmst::generate_nodes(int dimensions, int points, unsigned int seed = time(NULL)) {
+  printf("Hello");
   srand(seed);
   vector<node> nodes;
   for(int i = 0; i < points; ++i) {
+    printf("Number: %d", i);
     node *new_node = new node();
     coordinate *new_coordinate = new coordinate();
     vector<float> coordinates;
