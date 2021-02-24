@@ -12,12 +12,12 @@ class PriorityQueue {
     bool full() const;
     bool print() const;
     Randmst::node top() const;
-    bool add(Randmst::node val);
-    Randmst::node pop();
+    bool add(Randmst::node *val);
+    Randmst::node *pop();
     void swap();
 
   private:
-    Randmst::node* heap_;
+    Randmst::node** heap_;
     unsigned int capacity_;
     unsigned int size_;
 };
