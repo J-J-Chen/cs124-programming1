@@ -67,11 +67,12 @@ float Randmst::prim(node *root_node, int dimensions, int n) {
  * @return Returns a vector of nodes
  */
 vector<Randmst::node> Randmst::generate_nodes(int dimensions, int points, unsigned int seed = time(NULL)) {
-  printf("Hello");
+  printf("Hello: %d, %d\n", dimensions, points);
   srand(seed);
   vector<node> nodes;
+  printf("made nodes\n");
   for(int i = 0; i < points; ++i) {
-    printf("Number: %d", i);
+    printf("Number: %d\n", i);
     node *new_node = new node();
     coordinate *new_coordinate = new coordinate();
     vector<float> coordinates;
@@ -80,7 +81,8 @@ vector<Randmst::node> Randmst::generate_nodes(int dimensions, int points, unsign
       coordinates.push_back(rand());
     }
     new_coordinate->coordinates = coordinates;
-    *new_node->coordinates = *new_coordinate;
+    new_node->coordinates = new_coordinate;
+    printf("YAY\n");
   }
   return nodes;
 }
