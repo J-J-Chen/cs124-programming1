@@ -7,37 +7,36 @@
 using namespace std;
 
 class Randmst {
-  public:
-  Randmst(int numPoints, int numDimensions);
-  ~Randmst();
-  struct node;
-  float prim(node *source_node, int dimensions, int n);
-  float get_distance(node node1, node node2, bool use_sqrt);
-  void generate_edges(vector<node> nodes, float max_length);
-  vector<node> generate_nodes(int dimensions, int points, unsigned int seed);
-  void print_average();
-  
-  struct coordinate {
-    vector<float> coordinates;
-  };
-  
-  struct closest_connected {
-    vector<node> connected;
-  };
-  
-  struct close_nodes {
-    vector<node> connected;
-  };
-  
-  struct node {
-    close_nodes *neighbor_nodes = nullptr;
-    coordinate *coordinates = nullptr;
-    node *closest_connected = nullptr;
-    float closest_distance = INFINITY;
-  };
+public:
+    Randmst(int numPoints, int numDimensions);
+    ~Randmst();
+    struct node;
+    float prim(node* source_node, int dimensions, int n);
+    float get_distance(node node1, node node2, int dimensions, bool use_sqrt);
+    void generate_edges(vector<node> nodes, int dimensions, float max_length);
+    vector<node> generate_nodes(int dimensions, int points, unsigned int seed);
+    void print_average();
 
-  private:
+    struct coordinate {
+        vector<float> coordinates;
+    };
+
+    struct closest_connected {
+        vector<node> connected;
+    };
+
+    struct close_nodes {
+        vector<node> connected;
+    };
+
+    struct node {
+        close_nodes* neighbor_nodes = nullptr;
+        coordinate* coordinates = nullptr;
+        node* closest_connected = nullptr;
+        float closest_distance = INFINITY;
+    };
+
+private:
     float average;
 };
 #endif
-
