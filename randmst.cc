@@ -1,36 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
-#include <math.h>
 #include <time.h>
 #include "priorityQueue.h"
+#include "randmst.h"
 
 using namespace std;
 
-struct node;
-vector<node> generate_nodes(int dimensions, int points);
-float prim(node source_node, int dimensions, int n);
-float get_distance(node node1, node node2, bool use_sqrt);
-void generate_edges(vector<node> nodes, float max_length);
-
-struct coordinate {
-  vector<float> coordinates;
-};
-
-struct closest_connected {
-  vector<node> connected;
-};
-
-struct close_nodes {
-  vector<node> connected;
-};
-
-struct node {
-  close_nodes *neighbor_nodes = nullptr;
-  coordinate *coordinates = nullptr;
-  node *closest_connected = nullptr;
-  float closest_distance = INFINITY;
-};
+Randmst::~Randmst() {}
 
 int main(int argc, char *argv[]) {
   if(argc < 5) {
@@ -48,7 +25,7 @@ int main(int argc, char *argv[]) {
   //printf("Average mst: %f", mst/(numPoints - 1));
 }
 
-float prim(node * root_node, int dimensions, int n) {
+float Randmst::prim(node *root_node, int dimensions, int n) {
   //PriorityQueue queue(n);
   return 0.0;
 }
@@ -60,7 +37,7 @@ float prim(node * root_node, int dimensions, int n) {
  * @param seed Optional seed for testing. Default random
  * @return Returns a vector of nodes
  */
-vector<node> generate_nodes(int dimensions, int points, unsigned int seed = time(NULL)) {
+vector<Randmst::node> Randmst::generate_nodes(int dimensions, int points, unsigned int seed = time(NULL)) {
   srand(seed);
   vector<node> nodes;
   for(int i = 0; i < points; ++i) {
@@ -77,7 +54,7 @@ vector<node> generate_nodes(int dimensions, int points, unsigned int seed = time
   return nodes;
 }
 
-void generate_edges(vector<node> nodes, float max_length = 1) {
+void Randmst::generate_edges(vector<node> nodes, float max_length = 1) {
   for(int i = 0; i < nodes.size(); ++i) {
     for(int j = i + 1; j < nodes.size(); ++j) {
       float dist = get_distance(nodes[i], nodes[j], false);
@@ -98,7 +75,7 @@ void generate_edges(vector<node> nodes, float max_length = 1) {
  * between point1 and point2
  * @return Returns either the sum of coordinates or the Euclidian distance between the points
  */
-float get_distance(node node1, node node2, bool use_sqrt = false) {
+float Randmst::get_distance(node node1, node node2, bool use_sqrt = false) {
   float sum = 0;
   for(int i = 0; i < node1.coordinates->coordinates.size(); ++i)
     sum += node1.coordinates->coordinates[i] + node2.coordinates->coordinates[i];
