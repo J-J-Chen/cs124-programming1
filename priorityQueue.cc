@@ -6,9 +6,9 @@ int main() { return 0; }
 PriorityQueue::PriorityQueue(unsigned int capacity) {
   capacity_ = capacity;
   size_ = 0;
-  heap_ = new DataType[capacity + 1];
-  for(int i = 0; i < capacity; ++i)
-    heap_[i] = NULL;
+  heap_ = new Randmst::node[capacity + 1];
+  //for(int i = 0; i < capacity; ++i)
+    //heap_[i] = nullptr;
 }
 
 PriorityQueue::~PriorityQueue() {
@@ -27,12 +27,12 @@ bool PriorityQueue::full() const {
   return size_ == capacity_;
 }
 
-bool PriorityQueue::add(DataType val) {
+bool PriorityQueue::add(Randmst::node val) {
   if(full()) return false;
   heap_[++size_] = val;
   int new_index = size_;
-  while(heap_[new_index] > heap_[new_index/2] && new_index/2 != 0) {
-    DataType temp = heap_[new_index];
+  while(heap_[new_index].closest_distance > heap_[new_index/2].closest_distance && new_index/2 != 0) {
+    Randmst::node temp = heap_[new_index];
     heap_[new_index] = heap_[new_index/2];
     heap_[new_index/2] = temp;
     new_index = new_index / 2;
@@ -46,9 +46,10 @@ bool PriorityQueue::pop() {
   --size_;
   int i = 1;
   int larger;
-  while(2 * i < size_ && (heap_[i] < heap_[2*i] || heap_[i] < heap_[2*i+1])) {
-    larger = (heap_[2*i] > heap_[2*i+1]) ? 2 * i : 2 * i + 1;
-    DataType temp = heap_[i];
+  while(2 * i < size_ && (heap_[i].closest_distance < heap_[2*i].closest_distance || 
+        heap_[i].closest_distance < heap_[2*i+1].closest_distance)) {
+    larger = (heap_[2*i].closest_distance > heap_[2*i+1].closest_distance) ? 2 * i : 2 * i + 1;
+    Randmst::node temp = heap_[i];
     heap_[i] = heap_[larger];
     heap_[larger] = temp;
     i = larger;
