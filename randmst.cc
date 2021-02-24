@@ -3,6 +3,7 @@
 #include <vector>
 #include <time.h>
 #include <math.h>
+#include <random>
 #include "priorityQueue.h"
 #include "randmst.h"
 
@@ -15,7 +16,7 @@ Randmst::Randmst(int numPoints, int numDimensions) {
   printf("numDim: %d\n",numDimensions);
   vector<node*> nodes = generate_nodes(numDimensions, numPoints, time(NULL));
   printf("Bout to make edges\n");
-  generate_edges(nodes, 1);
+  generate_edges(nodes, 10);
   printf("Made edges\n");
   average = prim(nodes[0], numDimensions, numPoints);
 }
@@ -81,8 +82,11 @@ vector<Randmst::node*> Randmst::generate_nodes(int dimensions, int points, unsig
     coordinate *new_coordinate = new coordinate();
     vector<float> coordinates;
     nodes.push_back(new_node);
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_real_distribution<> dis(0,1);
     for(int j = 0; j < dimensions; ++j) {
-      coordinates.push_back(rand());
+      coordinates.push_back(dis(gen));
     }
     new_coordinate->coordinates = coordinates;
     new_node->coordinates = new_coordinate;
@@ -94,9 +98,21 @@ void Randmst::generate_edges(vector<node*> nodes, float max_length = 1) {
   for(int i = 0; i < nodes.size(); ++i) {
     for(int j = i + 1; j < nodes.size(); ++j) {
       float dist = get_distance(nodes[i], nodes[j], false);
+      printf("Dist: %f\n", dist);
       if(dist < max_length * max_length) {
+        if(nodes[i]->neighbor_nodes == nullptr) {
+          close_nodes *new_neighbors = new close_nodes();
+          nodes[i]->neighbor_nodes = new_neighbors;
+        }
+        if(nodes[j]->neighbor_nodes == nullptr) {
+          close_nodes *new_neighbors = new close_nodes();
+          nodes[j]->neighbor_nodes = new_neighbors;
+        }
+        printf("PUSHED BACK\n");
         nodes[i]->neighbor_nodes->connected.push_back(nodes[j]);
+        printf("FIRST\n");
         nodes[j]->neighbor_nodes->connected.push_back(nodes[i]);
+        printf("SECOND\n");
       }
     }
   }
@@ -113,6 +129,9 @@ void Randmst::generate_edges(vector<node*> nodes, float max_length = 1) {
  */
 float Randmst::get_distance(node *node1, node *node2, bool use_sqrt = false) {
   float sum = 0;
+  printf("SDFDSF %f\n", node1->coordinates->coordinates[0]);
+  if(node1->coordinates->coordinates.size() == 1)
+    return abs(node1->coordinates->coordinates[0] - node2->coordinates->coordinates[0]);
   for(int i = 0; i < node1->coordinates->coordinates.size(); ++i)
     sum += node1->coordinates->coordinates[i] + node2->coordinates->coordinates[i];
   if(use_sqrt)
