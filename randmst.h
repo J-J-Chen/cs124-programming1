@@ -15,7 +15,7 @@ class Randmst {
   float get_distance(node *node1, node *node2, bool use_sqrt);
   void generate_edges(vector<node*> nodes, float max_length);
   vector<node*> generate_nodes(int dimensions, int points, unsigned int seed);
-  void print_average();
+  float get_run();
   
   struct coordinate {
     vector<float> coordinates;
@@ -42,7 +42,7 @@ class Randmst {
   };
 
   private:
-    float average;
+    float run;
 };
 #endif
 
