@@ -29,9 +29,8 @@ int main(int argc, char *argv[]) {
     Randmst randmst(numPoints, numDimensions);
     float sing_run = randmst.get_run();
     total += sing_run;
-    printf("Run #%d got: %f\n", i+1, sing_run);
   }
-  printf("Average: %f\n", total/numTrials);
+  printf("%f %d %d %d\n", total/numTrials, numPoints, numTrials, numDimensions);
 }
 
 float Randmst::prim(node *root_node, int dimensions, int n) {
