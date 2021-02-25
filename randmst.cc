@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <vector>
-#include <time.h>
-#include <math.h>
 #include <random>
 #include "priorityQueue.h"
 #include "randmst.h"
@@ -12,12 +8,8 @@ using namespace std;
 Randmst::~Randmst() {}
 
 Randmst::Randmst(int numPoints, int numDimensions) {
-  //printf("Bout to make nodes\n");
-  //printf("numDim: %d\n",numDimensions);
   vector<node*> nodes = generate_nodes(numDimensions, numPoints, time(NULL));
-  //printf("Bout to make edges\n");
-  generate_edges(nodes, 10);
-  //printf("Made edges\n");
+  generate_edges(nodes, 0.15);
   run = prim(nodes[0], numDimensions, numPoints);
 }
 
@@ -53,29 +45,17 @@ float Randmst::prim(node *root_node, int dimensions, int n) {
       if(dist < to_add->neighbor_nodes->connected.at(j)->closest_distance) {
         to_add->neighbor_nodes->connected[j]->closest_distance = dist;
         queue.add(to_add->neighbor_nodes->connected[j]); //The new point is closer. May have to delete old
-        printf("ADDED TO QUEUE: %f\n", to_add->neighbor_nodes->connected[j]->closest_distance);
       }
     }
-    //total_dist += sqrt(to_add->closest_distance); //Add the total dist
-    //printf("MADE IT HERE\n");
     total_dist += to_add->closest_distance;
-    printf("TOTAL DIST: %f\n", total_dist);
-    //printf("TO ADD BEFORE: %f\n", to_add->closest_distance);
     to_add->closest_distance = -1; //Shows that it has been added to the mst
-    //printf("TO ADD Later: %f\n", to_add->closest_distance);
     to_add = queue.pop();
-    //printf("TO ADD after pop: %f\n", to_add->closest_distance);
     while(to_add->closest_distance < 0) {
       if(to_add == nullptr) break;
-      //printf("Bleep: %f\n",to_add->closest_distance);
       to_add = queue.pop();
       if(to_add == nullptr) break;
     }
-    printf("FINSIH A POINT SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSss\n");
-    if(to_add == nullptr) printf("STOOOOOOOOOOOOOOOOOOOOOOP\n");
   }
-  //printf("FINISH\n");
-  //printf("COUNT: %f\n", total_dist/count);
   return total_dist;
 }
 
@@ -86,7 +66,7 @@ float Randmst::prim(node *root_node, int dimensions, int n) {
  * @param seed Optional seed for testing. Default random
  * @return Returns a vector of nodes
  */
-vector<Randmst::node*> Randmst::generate_nodes(int dimensions, int points, unsigned int seed = time(NULL)) {
+vector<Randmst::node*> Randmst::generate_nodes(int dimensions, int points, unsigned int seed) {
   srand(seed);
   vector<node*> nodes;
   for(int i = 0; i < points; ++i) {
@@ -110,7 +90,6 @@ void Randmst::generate_edges(vector<node*> nodes, float max_length = 1) {
   for(int i = 0; i < nodes.size(); ++i) {
     for(int j = i + 1; j < nodes.size(); ++j) {
       float dist = get_distance(nodes[i], nodes[j], true);
-      //printf("Dist: %f\n", dist);
       if(dist < max_length * max_length) {
         if(nodes[i]->neighbor_nodes == nullptr) {
           close_nodes *new_neighbors = new close_nodes();
@@ -128,7 +107,6 @@ void Randmst::generate_edges(vector<node*> nodes, float max_length = 1) {
         nodes[j]->neighbor_nodes->connected.push_back(nodes[i]);
       }
     }
-    //printf("GOT NEIGHBORS: %d\n", nodes[i]->neighbor_nodes->connected.size());
   }
 }
 
