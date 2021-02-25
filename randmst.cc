@@ -11,7 +11,7 @@ Randmst::~Randmst() {}
 
 Randmst::Randmst(int numPoints, int flag, int numDimensions) {
     vector<node*> nodes = generate_nodes(numDimensions, numPoints, time(NULL));
-    float cutoff = 0.395*exp(numPoints*-0.0002);
+    float cutoff = 0.45*exp(numPoints*-0.0002);
     generate_edges(nodes, flag, cutoff);
     run = prim(nodes[0], numDimensions, flag, numPoints);
 }
