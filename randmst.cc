@@ -11,7 +11,7 @@ Randmst::~Randmst() {}
 
 Randmst::Randmst(int numPoints, int flag, int numDimensions) {
     vector<node*> nodes = generate_nodes(numDimensions, numPoints, time(NULL));
-    float cutoff = 0.45*exp(numPoints*-0.0002);
+    float cutoff = 0.45*exp(numPoints*-0.00002);
     generate_edges(nodes, flag, cutoff);
     run = prim(nodes[0], numDimensions, flag, numPoints);
 }
@@ -104,7 +104,7 @@ void Randmst::generate_edges(vector<node*> nodes, int flag, float max_length = 1
     for (int i = 0; i < nodes.size(); ++i) {
         for (int j = i + 1; j < nodes.size(); ++j) {
             float dist = get_distance(nodes[i], nodes[j], true);
-            if (dist < max_length * max_length) {
+            if (dist < max_length) {
                 if (nodes[i]->neighbor_nodes == nullptr) {
                     close_nodes* new_neighbors = new close_nodes();
                     vector<node*> new_node_lst;
