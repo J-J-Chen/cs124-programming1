@@ -34,6 +34,11 @@ class Randmst {
     coordinate *coordinates = nullptr;
     node *closest_connected = nullptr;
     float closest_distance = INFINITY;
+
+    node() {
+      close_nodes *new_neighbor = new close_nodes();
+      neighbor_nodes = new_neighbor;
+    }
   };
 
   private:

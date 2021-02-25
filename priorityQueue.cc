@@ -28,10 +28,10 @@ bool PriorityQueue::full() const {
 }
 
 bool PriorityQueue::add(Randmst::node *val) {
-  if(full()) return false;
+  //if(full()) return false;
   heap_[++size_] = val;
   int new_index = size_;
-  while(heap_[new_index]->closest_distance > heap_[new_index/2]->closest_distance && new_index/2 != 0) {
+  while(new_index/2 != 0 && heap_[new_index]->closest_distance > heap_[new_index/2]->closest_distance) {
     Randmst::node *temp = heap_[new_index];
     heap_[new_index] = heap_[new_index/2];
     heap_[new_index/2] = temp;
@@ -41,8 +41,10 @@ bool PriorityQueue::add(Randmst::node *val) {
 }
 
 Randmst::node* PriorityQueue::pop() {
-  //if(empty()) return false;
-  heap_[1] = heap_[size_];
+  printf("IN\n");
+  if(size_ == 0) return nullptr;
+  printf("HEAP SIZE: %d\n", size_);
+  heap_[0] = heap_[size_];
   Randmst::node *to_pop = heap_[size_];
   --size_;
   int i = 1;
@@ -55,6 +57,9 @@ Randmst::node* PriorityQueue::pop() {
     heap_[larger] = temp;
     i = larger;
   }
+  printf("RETURN THING: %d\n", size_);
+  if(to_pop->closest_distance > -2) printf("YAY\n");
+  printf("HAHAH\n");
   return to_pop;
 }
 
