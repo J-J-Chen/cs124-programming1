@@ -16,7 +16,7 @@ Randmst::Randmst(int numPoints, int numDimensions) {
   printf("numDim: %d\n",numDimensions);
   vector<node*> nodes = generate_nodes(numDimensions, numPoints, time(NULL));
   printf("Bout to make edges\n");
-  generate_edges(nodes, 10000);
+  generate_edges(nodes, 0.15);
   printf("Made edges\n");
   average = prim(nodes[0], numDimensions, numPoints);
 }
@@ -45,10 +45,10 @@ float Randmst::prim(node *root_node, int dimensions, int n) {
   node *to_add = root_node;
   for(int i = 0; i < n; ++i) {
     printf("SDFDS\n");
-    if(to_add == nullptr) printf("NOOOOOOOOOOOOOO\n");
-    printf("OKAY\n");
-    printf("No crash: %f\n", to_add->neighbor_nodes->connected.size());
-    printf("Crash????\n");
+    //if(to_add == nullptr) printf("NOOOOOOOOOOOOOO\n");
+    //printf("OKAY\n");
+    //printf("No crash: %f\n", to_add->neighbor_nodes->connected.size());
+    //printf("Crash????\n");
     for(int j = 0; j < to_add->neighbor_nodes->connected.size(); ++j) {
       float dist = get_distance(to_add, to_add->neighbor_nodes->connected[j], true);
       if(dist < to_add->neighbor_nodes->connected.at(j)->closest_distance) {
@@ -73,7 +73,7 @@ float Randmst::prim(node *root_node, int dimensions, int n) {
       if(to_add == nullptr) break;
     }
     printf("FINSIH A POINT SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSss\n");
-    if(to_add == nullptr) printf("STOOOOOOOOOOOOOOOOOOOOOOP\n");
+    //if(to_add == nullptr) printf("STOOOOOOOOOOOOOOOOOOOOOOP\n");
   }
   printf("FINISH\n");
   //printf("COUNT: %f\n", total_dist/count);
@@ -144,8 +144,13 @@ void Randmst::generate_edges(vector<node*> nodes, float max_length = 1) {
  */
 float Randmst::get_distance(node *node1, node *node2, bool use_sqrt = false) {
   float sum = 0;
-  if(node1->coordinates->coordinates.size() == 1)
-    return abs(node1->coordinates->coordinates[0] - node2->coordinates->coordinates[0]);
+  if(node1->coordinates->coordinates.size() == 0) {
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_real_distribution<> dis(0,1);
+    return dis(gen);
+    //return abs(node1->coordinates->coordinates[0] - node2->coordinates->coordinates[0]);
+  }
   for(int i = 0; i < node1->coordinates->coordinates.size(); ++i) {
     float val = (node1->coordinates->coordinates[i] - node2->coordinates->coordinates[i]);
     sum += val * val;
