@@ -41,9 +41,8 @@ bool PriorityQueue::add(Randmst::node *val) {
 }
 
 Randmst::node* PriorityQueue::pop() {
-  printf("IN\n");
   if(size_ == 0) return nullptr;
-  printf("HEAP SIZE: %d\n", size_);
+  //printf("HEAP SIZE: %d\n", size_);
   heap_[0] = heap_[size_];
   Randmst::node *to_pop = heap_[size_];
   --size_;
@@ -57,9 +56,6 @@ Randmst::node* PriorityQueue::pop() {
     heap_[larger] = temp;
     i = larger;
   }
-  printf("RETURN THING: %d\n", size_);
-  if(to_pop->closest_distance > -2) printf("YAY\n");
-  printf("HAHAH\n");
   return to_pop;
 }
 

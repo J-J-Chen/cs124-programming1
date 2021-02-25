@@ -43,33 +43,41 @@ float Randmst::prim(node *root_node, int dimensions, int n) {
   PriorityQueue queue(100*n);// = new PriorityQueue(n);
   root_node->closest_distance = 0;
   node *to_add = root_node;
-  printf("%d\n", root_node->neighbor_nodes == nullptr);
   for(int i = 0; i < n; ++i) {
+    printf("SDFDS\n");
+    if(to_add == nullptr) printf("NOOOOOOOOOOOOOO\n");
+    printf("OKAY\n");
+    printf("No crash: %f\n", to_add->neighbor_nodes->connected.size());
+    printf("Crash????\n");
     for(int j = 0; j < to_add->neighbor_nodes->connected.size(); ++j) {
-      float dist = get_distance(to_add, to_add->neighbor_nodes->connected[j], false);
+      float dist = get_distance(to_add, to_add->neighbor_nodes->connected[j], true);
       if(dist < to_add->neighbor_nodes->connected.at(j)->closest_distance) {
         to_add->neighbor_nodes->connected[j]->closest_distance = dist;
         queue.add(to_add->neighbor_nodes->connected[j]); //The new point is closer. May have to delete old
         printf("ADDED TO QUEUE: %f\n", to_add->neighbor_nodes->connected[j]->closest_distance);
       }
     }
-    printf("OUT OF INNER PRIM FOR LOOP\n");
-    total_dist += sqrt(to_add->closest_distance); //Add the total dist
+    //total_dist += sqrt(to_add->closest_distance); //Add the total dist
+    //printf("MADE IT HERE\n");
+    total_dist += to_add->closest_distance;
     printf("TOTAL DIST: %f\n", total_dist);
-    printf("TO ADD BEFORE: %f\n", to_add->closest_distance);
+    //printf("TO ADD BEFORE: %f\n", to_add->closest_distance);
     to_add->closest_distance = -1; //Shows that it has been added to the mst
-    printf("TO ADD Later: %f\n", to_add->closest_distance);
+    //printf("TO ADD Later: %f\n", to_add->closest_distance);
     to_add = queue.pop();
-    printf("TO ADD after pop: %f\n", to_add->closest_distance);
+    //printf("TO ADD after pop: %f\n", to_add->closest_distance);
     while(to_add->closest_distance < 0) {
       if(to_add == nullptr) break;
-      printf("Bleep: %f\n",to_add->closest_distance);
+      //printf("Bleep: %f\n",to_add->closest_distance);
       to_add = queue.pop();
       if(to_add == nullptr) break;
     }
-    printf("FINSIH A POINT\n");
+    printf("FINSIH A POINT SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSss\n");
+    if(to_add == nullptr) printf("STOOOOOOOOOOOOOOOOOOOOOOP\n");
   }
-  return total_dist/n;
+  printf("FINISH\n");
+  //printf("COUNT: %f\n", total_dist/count);
+  return total_dist;
 }
 
 /**
@@ -80,12 +88,9 @@ float Randmst::prim(node *root_node, int dimensions, int n) {
  * @return Returns a vector of nodes
  */
 vector<Randmst::node*> Randmst::generate_nodes(int dimensions, int points, unsigned int seed = time(NULL)) {
-  printf("Hello: %d, %d\n", dimensions, points);
   srand(seed);
   vector<node*> nodes;
-  printf("made nodes\n");
   for(int i = 0; i < points; ++i) {
-    printf("Number: %d\n", i);
     node *new_node = new node();
     coordinate *new_coordinate = new coordinate();
     vector<float> coordinates;
@@ -105,8 +110,8 @@ vector<Randmst::node*> Randmst::generate_nodes(int dimensions, int points, unsig
 void Randmst::generate_edges(vector<node*> nodes, float max_length = 1) {
   for(int i = 0; i < nodes.size(); ++i) {
     for(int j = i + 1; j < nodes.size(); ++j) {
-      float dist = get_distance(nodes[i], nodes[j], false);
-      printf("Dist: %f\n", dist);
+      float dist = get_distance(nodes[i], nodes[j], true);
+      //printf("Dist: %f\n", dist);
       if(dist < max_length * max_length) {
         if(nodes[i]->neighbor_nodes == nullptr) {
           close_nodes *new_neighbors = new close_nodes();
@@ -120,13 +125,11 @@ void Randmst::generate_edges(vector<node*> nodes, float max_length = 1) {
           new_neighbors->connected = new_node_lst;
           nodes[j]->neighbor_nodes = new_neighbors;
         }
-        printf("PUSHED BACK\n");
         nodes[i]->neighbor_nodes->connected.push_back(nodes[j]);
-        printf("FIRST\n");
         nodes[j]->neighbor_nodes->connected.push_back(nodes[i]);
-        printf("SECOND\n");
       }
     }
+    printf("GOT NEIGHBORS: %d\n", nodes[i]->neighbor_nodes->connected.size());
   }
 }
 
@@ -143,8 +146,10 @@ float Randmst::get_distance(node *node1, node *node2, bool use_sqrt = false) {
   float sum = 0;
   if(node1->coordinates->coordinates.size() == 1)
     return abs(node1->coordinates->coordinates[0] - node2->coordinates->coordinates[0]);
-  for(int i = 0; i < node1->coordinates->coordinates.size(); ++i)
-    sum += node1->coordinates->coordinates[i] + node2->coordinates->coordinates[i];
+  for(int i = 0; i < node1->coordinates->coordinates.size(); ++i) {
+    float val = (node1->coordinates->coordinates[i] - node2->coordinates->coordinates[i]);
+    sum += val * val;
+  }
   if(use_sqrt)
     return sqrt(sum);
   return sum;
