@@ -15,6 +15,7 @@ class PriorityQueue {
     bool add(Randmst::node *val);
     Randmst::node *pop();
     void swap();
+    void minHeapify(int i);
 
   private:
     Randmst::node** heap_;

@@ -16,7 +16,7 @@ Randmst::Randmst(int numPoints, int numDimensions) {
   //printf("numDim: %d\n",numDimensions);
   vector<node*> nodes = generate_nodes(numDimensions, numPoints, time(NULL));
   //printf("Bout to make edges\n");
-  generate_edges(nodes, 1);
+  generate_edges(nodes, 10);
   //printf("Made edges\n");
   run = prim(nodes[0], numDimensions, numPoints);
 }
@@ -47,19 +47,19 @@ float Randmst::prim(node *root_node, int dimensions, int n) {
   PriorityQueue queue(100*n);
   root_node->closest_distance = 0;
   node *to_add = root_node;
-  for(int i = 0; i < n; ++i) {
+  for(int i = 0; i < n - 1; ++i) {
     for(int j = 0; j < to_add->neighbor_nodes->connected.size(); ++j) {
       float dist = get_distance(to_add, to_add->neighbor_nodes->connected[j], true);
       if(dist < to_add->neighbor_nodes->connected.at(j)->closest_distance) {
         to_add->neighbor_nodes->connected[j]->closest_distance = dist;
         queue.add(to_add->neighbor_nodes->connected[j]); //The new point is closer. May have to delete old
-        //printf("ADDED TO QUEUE: %f\n", to_add->neighbor_nodes->connected[j]->closest_distance);
+        printf("ADDED TO QUEUE: %f\n", to_add->neighbor_nodes->connected[j]->closest_distance);
       }
     }
     //total_dist += sqrt(to_add->closest_distance); //Add the total dist
     //printf("MADE IT HERE\n");
     total_dist += to_add->closest_distance;
-    //printf("TOTAL DIST: %f\n", total_dist);
+    printf("TOTAL DIST: %f\n", total_dist);
     //printf("TO ADD BEFORE: %f\n", to_add->closest_distance);
     to_add->closest_distance = -1; //Shows that it has been added to the mst
     //printf("TO ADD Later: %f\n", to_add->closest_distance);
@@ -71,8 +71,8 @@ float Randmst::prim(node *root_node, int dimensions, int n) {
       to_add = queue.pop();
       if(to_add == nullptr) break;
     }
-    //printf("FINSIH A POINT SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSss\n");
-    //if(to_add == nullptr) printf("STOOOOOOOOOOOOOOOOOOOOOOP\n");
+    printf("FINSIH A POINT SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSss\n");
+    if(to_add == nullptr) printf("STOOOOOOOOOOOOOOOOOOOOOOP\n");
   }
   //printf("FINISH\n");
   //printf("COUNT: %f\n", total_dist/count);
@@ -140,7 +140,7 @@ void Randmst::generate_edges(vector<node*> nodes, float max_length = 1) {
  * between point1 and point2
  * @return Returns either the sum of coordinates or the Euclidian distance between the points
  */
-float Randmst::get_distance(node *node1, node *node2, bool use_sqrt = false) {
+float Randmst::get_distance(node *node1, node *node2, bool use_sqrt = true) {
   float sum = 0;
   if(node1->coordinates->coordinates.size() == 0) {
     random_device rd;
