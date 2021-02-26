@@ -37,17 +37,17 @@ int main(int argc, char* argv[]) {
 
 float Randmst::prim(node* root_node, int dimensions, int edge_max, int n) {
     float total_dist = 0;
-    PriorityQueue queue(n);
+    PriorityQueue queue(n + 1);
     root_node->closest_distance = 0;
     node* to_add = root_node;
     float max_edge = 0;
     for (int i = 0; i < n - 1; ++i) {
         for (int j = 0; j < to_add->neighbor_nodes->connected.size(); ++j) {
             float dist = get_distance(to_add, to_add->neighbor_nodes->connected[j], true);
-            if (dist < to_add->neighbor_nodes->connected.at(j)->closest_distance) {
+            if (dist < to_add->neighbor_nodes->connected[j]->closest_distance) {
                 if(to_add->neighbor_nodes->connected[j]->closest_distance == INFINITY) {
                     to_add->neighbor_nodes->connected[j]->closest_distance = dist;
-                    queue.add(to_add->neighbor_nodes->connected[j]); //The new point is closer. May have to delete old
+                    queue.add(to_add->neighbor_nodes->connected[j]);
                 } else {
                     to_add->neighbor_nodes->connected[j]->closest_distance = dist;
                     queue.resort(to_add->neighbor_nodes->connected[j]);

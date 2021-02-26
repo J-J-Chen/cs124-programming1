@@ -1,4 +1,5 @@
 #include <cmath>
+#include <stdio.h>
 #include "priorityQueue.h"
 
 PriorityQueue::PriorityQueue(unsigned int capacity) {
@@ -39,23 +40,17 @@ bool PriorityQueue::add(Randmst::node *val) {
 }
 
 void PriorityQueue::resort(Randmst::node* val) {
-  /**
-  int new_index = size_ - 1;
-  while(new_index != 0) {
-    if(heap_[new_index/2]->closest_distance > heap_[new_index]->closest_distance) {
-      Randmst::node *temp = heap_[new_index];
-      heap_[new_index] = heap_[new_index/2];
-      heap_[new_index/2] = temp;
-    }
-    new_index = new_index / 2;
-  }
-  */
   int loc = 0;
   for(int i = 0; i < size_; ++i) {
     if(heap_[i] == val) {
       loc = i;
       break;
     }
+  }
+
+  if(loc == -1) {
+    printf("NOOOO\n");
+    return;
   }
 
   while(heap_[loc]->closest_distance > heap_[(loc-1)/2]->closest_distance) {
@@ -86,6 +81,10 @@ void PriorityQueue::minHeapify(int i) {
 
 Randmst::node* PriorityQueue::pop() {
   if(size_ == 0) return nullptr;
+  if(size_ == 1) {
+    --size_;
+    return heap_[0];
+  }
   Randmst::node *to_pop = heap_[0];
   heap_[0] = heap_[size_-1];
   --size_;
