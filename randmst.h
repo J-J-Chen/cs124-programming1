@@ -13,7 +13,7 @@ public:
     struct node;
     float prim(node* source_node, int dimensions, int flag, int n);
     float get_distance(node* node1, node* node2, bool use_sqrt);
-    void generate_edges(vector<node*> nodes, int flag, float max_length);
+    void generate_edges(vector<node*> nodes, int flag, int dim, float max_length);
     vector<node*> generate_nodes(int dimensions, int points, unsigned int seed);
     float get_run();
 
