@@ -29,23 +29,43 @@ bool PriorityQueue::add(Randmst::node *val) {
   size_++;
   int new_index = size_ - 1;
   heap_[new_index] = val;
-  while(new_index != 0 && heap_[new_index/2]->closest_distance > heap_[new_index]->closest_distance) {
+  while(new_index != 0 && heap_[(new_index-1)/2]->closest_distance > heap_[new_index]->closest_distance) {
     Randmst::node *temp = heap_[new_index];
     heap_[new_index] = heap_[new_index/2];
     heap_[new_index/2] = temp;
-    new_index = new_index / 2;
+    new_index = (new_index - 1) / 2;
   }
   return true;
 }
 
-void PriorityQueue::resort() {
+void PriorityQueue::resort(Randmst::node* val) {
+  /**
   int new_index = size_ - 1;
   while(new_index != 0) {
+    if(heap_[new_index/2]->closest_distance > heap_[new_index]->closest_distance) {
       Randmst::node *temp = heap_[new_index];
       heap_[new_index] = heap_[new_index/2];
       heap_[new_index/2] = temp;
-      new_index = new_index / 2;
+    }
+    new_index = new_index / 2;
   }
+  */
+  int loc = 0;
+  for(int i = 0; i < size_; ++i) {
+    if(heap_[i] == val) {
+      loc = i;
+      break;
+    }
+  }
+
+  while(heap_[loc]->closest_distance > heap_[(loc-1)/2]->closest_distance) {
+    Randmst::node *temp = heap_[(loc-1)/2];
+    heap_[(loc-1)/2] = heap_[loc];
+    heap_[loc] = temp;
+    loc = (loc - 1) / 2;
+    minHeapify(loc);
+  }
+  minHeapify(loc/2);
 }
 
 void PriorityQueue::minHeapify(int i) {

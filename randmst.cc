@@ -50,7 +50,7 @@ float Randmst::prim(node* root_node, int dimensions, int edge_max, int n) {
                     queue.add(to_add->neighbor_nodes->connected[j]); //The new point is closer. May have to delete old
                 } else {
                     to_add->neighbor_nodes->connected[j]->closest_distance = dist;
-                    queue.resort();
+                    queue.resort(to_add->neighbor_nodes->connected[j]);
                 }
             }
         }
