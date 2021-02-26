@@ -11,7 +11,7 @@ Randmst::~Randmst() {}
 Randmst::Randmst(int numPoints, int flag, int numDimensions) {
     vector<node*> nodes = generate_nodes(numDimensions, numPoints, time(NULL));
     float cutoff = 0.45 * exp(numPoints * -0.00002);
-    generate_edges(nodes, flag, cutoff);
+    generate_edges(nodes, flag, numDimensions, cutoff);
     run = prim(nodes[0], numDimensions, flag, numPoints);
 }
 
@@ -56,6 +56,7 @@ float Randmst::prim(node* root_node, int dimensions, int edge_max, int n) {
     root_node->closest_distance = 0;
     node* to_add = root_node;
     float max_edge = 0;
+
     for (int i = 0; i < n - 1; ++i) {
         for (int j = 0; j < to_add->neighbor_nodes->connected.size(); ++j) {
             float dist = get_distance(to_add, to_add->neighbor_nodes->connected[j], true);
@@ -120,10 +121,17 @@ vector<Randmst::node*> Randmst::generate_nodes(int dimensions, int points, unsig
     return nodes;
 }
 
-void Randmst::generate_edges(vector<node*> nodes, int flag, float max_length = 1) {
+void Randmst::generate_edges(vector<node*> nodes, int flag, int dim, float max_length = 1) {
     for (int i = 0; i < nodes.size(); ++i) {
         for (int j = i + 1; j < nodes.size(); ++j) {
-            float dist = get_distance(nodes[i], nodes[j], true);
+            srand((unsigned)time(NULL));
+            float dist;
+            if (dim == 0) { 
+                dist = (float)rand() / RAND_MAX; 
+            }
+            else { 
+                dist = get_distance(nodes[i], nodes[j], true); 
+            }
             if (dist < max_length) {
                 if (nodes[i]->neighbor_nodes == nullptr) {
                     close_nodes* new_neighbors = new close_nodes();
