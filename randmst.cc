@@ -10,7 +10,7 @@ Randmst::~Randmst() {}
 
 Randmst::Randmst(int numPoints, int flag, int numDimensions) {
     vector<node*> nodes = generate_nodes(numDimensions, numPoints, time(NULL));
-    float cutoff = 0.45 * exp(numPoints * -0.00002);
+    float cutoff = 18 * exp(numPoints * -0.00002);
     generate_edges(nodes, flag, numDimensions, cutoff);
     run = prim(nodes[0], numDimensions, flag, numPoints);
 }
@@ -126,6 +126,18 @@ void Randmst::generate_edges(vector<node*> nodes, int flag, int dim, float max_l
         for (int j = i + 1; j < nodes.size(); ++j) {
             srand((unsigned)time(NULL));
             float dist;
+            if (nodes[i]->neighbor_nodes == nullptr) {
+                close_nodes* new_neighbors = new close_nodes();
+                vector<node*> new_node_lst;
+                new_neighbors->connected = new_node_lst;
+                nodes[i]->neighbor_nodes = new_neighbors;
+            }
+            if (nodes[j]->neighbor_nodes == nullptr) {
+                close_nodes* new_neighbors = new close_nodes();
+                vector<node*> new_node_lst;
+                new_neighbors->connected = new_node_lst;
+                nodes[j]->neighbor_nodes = new_neighbors;
+            }
             if (dim == 0) { 
                 dist = (float)rand() / RAND_MAX; 
             }
@@ -133,22 +145,14 @@ void Randmst::generate_edges(vector<node*> nodes, int flag, int dim, float max_l
                 dist = get_distance(nodes[i], nodes[j], true); 
             }
             if (dist < max_length) {
-                if (nodes[i]->neighbor_nodes == nullptr) {
-                    close_nodes* new_neighbors = new close_nodes();
-                    vector<node*> new_node_lst;
-                    new_neighbors->connected = new_node_lst;
-                    nodes[i]->neighbor_nodes = new_neighbors;
-                }
-                if (nodes[j]->neighbor_nodes == nullptr) {
-                    close_nodes* new_neighbors = new close_nodes();
-                    vector<node*> new_node_lst;
-                    new_neighbors->connected = new_node_lst;
-                    nodes[j]->neighbor_nodes = new_neighbors;
-                }
                 nodes[i]->neighbor_nodes->connected.push_back(nodes[j]);
                 nodes[j]->neighbor_nodes->connected.push_back(nodes[i]);
             }
         }
+        // If no close neighbors are found, assign the first node as a neighbor
+        // This shouldn't happen, but if it does it will prevent a segmentation fault
+        if(nodes[i]->neighbor_nodes->connected.size() == 0)
+            nodes[i]->neighbor_nodes->connected.push_back(nodes[0]);
     }
 }
 
