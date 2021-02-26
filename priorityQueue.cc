@@ -38,6 +38,16 @@ bool PriorityQueue::add(Randmst::node *val) {
   return true;
 }
 
+void PriorityQueue::resort() {
+  int new_index = size_ - 1;
+  while(new_index != 0) {
+      Randmst::node *temp = heap_[new_index];
+      heap_[new_index] = heap_[new_index/2];
+      heap_[new_index/2] = temp;
+      new_index = new_index / 2;
+  }
+}
+
 void PriorityQueue::minHeapify(int i) {
   int l = 2*i +1; 
   int r = 2*i +2; 

@@ -16,6 +16,7 @@ class PriorityQueue {
     Randmst::node *pop();
     void swap();
     void minHeapify(int i);
+    void resort();
 
   private:
     Randmst::node** heap_;

@@ -1,6 +1,5 @@
 #include <vector>
 #include <random>
-#include <math.h>
 #include "priorityQueue.h"
 #include <time.h>
 #include "randmst.h"
@@ -38,7 +37,7 @@ int main(int argc, char* argv[]) {
 
 float Randmst::prim(node* root_node, int dimensions, int edge_max, int n) {
     float total_dist = 0;
-    PriorityQueue queue(100 * n);
+    PriorityQueue queue(n);
     root_node->closest_distance = 0;
     node* to_add = root_node;
     float max_edge = 0;
@@ -46,8 +45,13 @@ float Randmst::prim(node* root_node, int dimensions, int edge_max, int n) {
         for (int j = 0; j < to_add->neighbor_nodes->connected.size(); ++j) {
             float dist = get_distance(to_add, to_add->neighbor_nodes->connected[j], true);
             if (dist < to_add->neighbor_nodes->connected.at(j)->closest_distance) {
-                to_add->neighbor_nodes->connected[j]->closest_distance = dist;
-                queue.add(to_add->neighbor_nodes->connected[j]); //The new point is closer. May have to delete old
+                if(to_add->neighbor_nodes->connected[j]->closest_distance == INFINITY) {
+                    to_add->neighbor_nodes->connected[j]->closest_distance = dist;
+                    queue.add(to_add->neighbor_nodes->connected[j]); //The new point is closer. May have to delete old
+                } else {
+                    to_add->neighbor_nodes->connected[j]->closest_distance = dist;
+                    queue.resort();
+                }
             }
         }
 
