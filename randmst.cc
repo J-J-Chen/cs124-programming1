@@ -10,7 +10,7 @@ Randmst::~Randmst() {}
 
 Randmst::Randmst(int numPoints, int flag, int numDimensions) {
     vector<node*> nodes = generate_nodes(numDimensions, numPoints, time(NULL));
-    float cutoff = 0.45*exp(numPoints*-0.00002);
+    float cutoff = 0.45 * exp(numPoints * -0.00002);
     generate_edges(nodes, flag, cutoff);
     run = prim(nodes[0], numDimensions, flag, numPoints);
 }
@@ -26,12 +26,27 @@ int main(int argc, char* argv[]) {
     int numTrials = atoi(argv[3]);
     int numDimensions = atoi(argv[4]);
 
+    clock_t time_elap;
+    int out = 0;
+
+    clock_t t;
+    double time_pass = 0;
+    t = clock();
+
     float total = 0;
     for (int i = 0; i < numTrials; ++i) {
         Randmst randmst(numPoints, flag, numDimensions);
         float sing_run = randmst.get_run();
         total += sing_run;
     }
+    time_elap = clock() - t;
+
+    time_pass = double(time_elap) / CLOCKS_PER_SEC;
+
+    if (flag == 2) {
+        printf("Time: %.5f\n", time_pass);
+    }
+
     printf("%f %d %d %d\n", total / numTrials, numPoints, numTrials, numDimensions);
 }
 
@@ -45,10 +60,11 @@ float Randmst::prim(node* root_node, int dimensions, int edge_max, int n) {
         for (int j = 0; j < to_add->neighbor_nodes->connected.size(); ++j) {
             float dist = get_distance(to_add, to_add->neighbor_nodes->connected[j], true);
             if (dist < to_add->neighbor_nodes->connected[j]->closest_distance) {
-                if(to_add->neighbor_nodes->connected[j]->closest_distance == INFINITY) {
+                if (to_add->neighbor_nodes->connected[j]->closest_distance == INFINITY) {
                     to_add->neighbor_nodes->connected[j]->closest_distance = dist;
                     queue.add(to_add->neighbor_nodes->connected[j]);
-                } else {
+                }
+                else {
                     to_add->neighbor_nodes->connected[j]->closest_distance = dist;
                     queue.resort(to_add->neighbor_nodes->connected[j]);
                 }
