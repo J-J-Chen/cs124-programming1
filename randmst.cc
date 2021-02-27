@@ -10,9 +10,9 @@ Randmst::~Randmst() {}
 
 Randmst::Randmst(int numPoints, int flag, int numDimensions) {
     vector<node*> nodes = generate_nodes(numDimensions, numPoints, time(NULL));
-    float cutoff = 0.45*exp(numPoints*-0.00002);
+    float cutoff = 21* 0.45*exp(numPoints*-0.00002);
     generate_edges(nodes, flag, cutoff);
-    run = prim(nodes[0], numDimensions, flag, numPoints);
+    run = prim(nodes, numDimensions, flag, numPoints);
 }
 
 int main(int argc, char* argv[]) {
@@ -35,16 +35,47 @@ int main(int argc, char* argv[]) {
     printf("%f %d %d %d\n", total / numTrials, numPoints, numTrials, numDimensions);
 }
 
-float Randmst::prim(node* root_node, int dimensions, int edge_max, int n) {
+float Randmst::prim(vector<node*> nodes, int dimensions, int edge_max, int n) {
     float total_dist = 0;
-    PriorityQueue queue(n + 1);
+    PriorityQueue queue(n);
+    node* root_node = nodes[0];
     root_node->closest_distance = 0;
     node* to_add = root_node;
     float max_edge = 0;
+
+    if(dimensions == 0) {
+        for(int i = 0; i < n - 1; ++i) {
+          for(int j = 0; j < n; ++j) {
+            float dist = get_distance(nodes[i], nodes[j], true);
+            if(dist < nodes[j]->closest_distance) {
+              if(nodes[j]->closest_distance == INFINITY) {
+                nodes[j]->closest_distance = dist;
+                queue.add(nodes[j]);
+              } else {
+                nodes[j]->closest_distance = dist;
+                queue.resort(nodes[j]);
+              }
+            }
+          }
+          total_dist += to_add->closest_distance;
+          to_add->closest_distance = -1; //Shows that it has been added to the mst
+          to_add = queue.pop();
+          while (to_add->closest_distance < 0) {
+              if (to_add == nullptr) break;
+              to_add = queue.pop();
+              if (to_add == nullptr) break;
+          }
+        }
+        return total_dist;
+    } 
+
     for (int i = 0; i < n - 1; ++i) {
-        for (int j = 0; j < to_add->neighbor_nodes->connected.size(); ++j) {
+        int conn_size = dimensions == 0 ? n : to_add->neighbor_nodes->connected.size();
+        for (int j = 0; j < conn_size; ++j) {
             float dist = get_distance(to_add, to_add->neighbor_nodes->connected[j], true);
-            if (dist < to_add->neighbor_nodes->connected[j]->closest_distance) {
+            float closest_dist = dimensions == 0? get_distance(to_add, to_add, true) : 
+                to_add->neighbor_nodes->connected[j]->closest_distance;
+            if (dist < closest_dist) {
                 if(to_add->neighbor_nodes->connected[j]->closest_distance == INFINITY) {
                     to_add->neighbor_nodes->connected[j]->closest_distance = dist;
                     queue.add(to_add->neighbor_nodes->connected[j]);
@@ -105,26 +136,43 @@ vector<Randmst::node*> Randmst::generate_nodes(int dimensions, int points, unsig
 }
 
 void Randmst::generate_edges(vector<node*> nodes, int flag, float max_length = 1) {
+    if(nodes[0]->coordinates->coordinates.empty()) {
+      /**
+        for(int i = 0; i < nodes.size(); ++i) {
+            if (nodes[i]->neighbor_nodes == nullptr) {
+                close_nodes* new_neighbors = new close_nodes();
+                vector<node*> new_node_lst;
+                new_neighbors->connected = new_node_lst;
+                nodes[i]->neighbor_nodes = new_neighbors;
+            }
+
+            nodes[i]->neighbor_nodes->connected = nodes;
+        }
+        */
+        return;
+    }
     for (int i = 0; i < nodes.size(); ++i) {
         for (int j = i + 1; j < nodes.size(); ++j) {
+          if (nodes[i]->neighbor_nodes == nullptr) {
+                close_nodes* new_neighbors = new close_nodes();
+                vector<node*> new_node_lst;
+                new_neighbors->connected = new_node_lst;
+                nodes[i]->neighbor_nodes = new_neighbors;
+            }
+            if (nodes[j]->neighbor_nodes == nullptr) {
+                close_nodes* new_neighbors = new close_nodes();
+                vector<node*> new_node_lst;
+                new_neighbors->connected = new_node_lst;
+                nodes[j]->neighbor_nodes = new_neighbors;
+            }
             float dist = get_distance(nodes[i], nodes[j], true);
             if (dist < max_length) {
-                if (nodes[i]->neighbor_nodes == nullptr) {
-                    close_nodes* new_neighbors = new close_nodes();
-                    vector<node*> new_node_lst;
-                    new_neighbors->connected = new_node_lst;
-                    nodes[i]->neighbor_nodes = new_neighbors;
-                }
-                if (nodes[j]->neighbor_nodes == nullptr) {
-                    close_nodes* new_neighbors = new close_nodes();
-                    vector<node*> new_node_lst;
-                    new_neighbors->connected = new_node_lst;
-                    nodes[j]->neighbor_nodes = new_neighbors;
-                }
                 nodes[i]->neighbor_nodes->connected.push_back(nodes[j]);
                 nodes[j]->neighbor_nodes->connected.push_back(nodes[i]);
             }
         }
+        if(nodes[i]->neighbor_nodes->connected.empty()) 
+          nodes[i]->neighbor_nodes->connected.push_back(nodes[0]);
     }
 }
 
@@ -156,3 +204,4 @@ float Randmst::get_distance(node* node1, node* node2, bool use_sqrt = true) {
 float Randmst::get_run() {
     return run;
 }
+
