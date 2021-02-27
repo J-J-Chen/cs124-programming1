@@ -4,7 +4,7 @@
 #include "randmst.h"
 
 class PriorityQueue {
-  public:
+public:
     ~PriorityQueue();
     PriorityQueue(unsigned int capacity);
     unsigned int size() const;
@@ -12,12 +12,14 @@ class PriorityQueue {
     bool full() const;
     bool print() const;
     Randmst::node top() const;
-    bool add(Randmst::node val);
-    Randmst::node pop();
+    bool add(Randmst::node* val);
+    Randmst::node* pop();
     void swap();
+    void minHeapify(int i);
+    void resort(Randmst::node* val);
 
-  private:
-    Randmst::node* heap_;
+private:
+    Randmst::node** heap_;
     unsigned int capacity_;
     unsigned int size_;
 };
