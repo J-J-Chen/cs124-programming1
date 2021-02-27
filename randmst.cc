@@ -44,9 +44,14 @@ float Randmst::prim(vector<node*> nodes, int dimensions, int edge_max, int n) {
     float max_edge = 0;
 
     if(dimensions == 0) {
+        random_device rd;
+        mt19937 gen(rd());
+        uniform_real_distribution<> dis(0, 1);
+
         for(int i = 0; i < n - 1; ++i) {
+          float shortest = INFINITY;
           for(int j = 0; j < n; ++j) {
-            float dist = get_distance(nodes[i], nodes[j], true);
+            float dist = dis(gen);
             if(dist < nodes[j]->closest_distance) {
               if(nodes[j]->closest_distance == INFINITY) {
                 nodes[j]->closest_distance = dist;
@@ -186,12 +191,9 @@ void Randmst::generate_edges(vector<node*> nodes, int flag, float max_length = 1
  */
 float Randmst::get_distance(node* node1, node* node2, bool use_sqrt = true) {
     float sum = 0;
-    if (node1->coordinates->coordinates.size() == 0) {
-        random_device rd;
-        mt19937 gen(rd());
-        uniform_real_distribution<> dis(0, 1);
-        return dis(gen);
-    }
+    // Should never occur, but better safe than sorry
+    if (node1->coordinates->coordinates.size() == 0)
+        return 0.3;
     for (int i = 0; i < node1->coordinates->coordinates.size(); ++i) {
         float val = (node1->coordinates->coordinates[i] - node2->coordinates->coordinates[i]);
         sum += val * val;
