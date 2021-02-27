@@ -1,19 +1,18 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <vector>
-#include <time.h>
-#include <math.h>
+#include <random>
 #include "priorityQueue.h"
+#include <time.h>
 #include "randmst.h"
 
 using namespace std;
 
 Randmst::~Randmst() {}
 
-Randmst::Randmst(int numPoints, int numDimensions) {
-    vector<node> nodes = generate_nodes(numDimensions, numPoints, time(NULL));
-    generate_edges(nodes, numDimensions, 1);
-    average = prim(&nodes[0], numDimensions, numPoints);
+Randmst::Randmst(int numPoints, int flag, int numDimensions) {
+    vector<node*> nodes = generate_nodes(numDimensions, numPoints, time(NULL));
+    float cutoff = 0.45 * exp(numPoints * -0.00002);
+    generate_edges(nodes, flag, cutoff);
+    run = prim(nodes, numDimensions, flag, numPoints);
 }
 
 int main(int argc, char* argv[]) {
@@ -22,35 +21,118 @@ int main(int argc, char* argv[]) {
         printf("./randmst flag numPoints numTrials numDimensions \n");
         return 1;
     }
-    int flag = *argv[1];
-    int numPoints = *argv[2];
-    int numTrails = *argv[3];
-    int numDimensions = *argv[4];
+    int flag = atoi(argv[1]);
+    int numPoints = atoi(argv[2]);
+    int numTrials = atoi(argv[3]);
+    int numDimensions = atoi(argv[4]);
 
-    Randmst randmst(numPoints, numDimensions);
-    randmst.print_average();
+    clock_t time_elap;
+    int out = 0;
+
+    clock_t t;
+    double time_pass = 0;
+    t = clock();
+
+    float total = 0;
+    for (int i = 0; i < numTrials; ++i) {
+        Randmst randmst(numPoints, flag, numDimensions);
+        float sing_run = randmst.get_run();
+        total += sing_run;
+    }
+    time_elap = clock() - t;
+
+    time_pass = double(time_elap) / CLOCKS_PER_SEC;
+
+    if (flag == 2) {
+        printf("Time: %.5f\n", time_pass);
+    }
+
+    if (flag == 1) {
+        printf("Max edge: %f", total / numTrials);
+    }
+    else {
+        printf("%f %d %d %d\n", total / numTrials, numPoints, numTrials, numDimensions);
+    }
 }
 
-float Randmst::prim(node* root_node, int dimensions, int n) {
+float Randmst::prim(vector<node*> nodes, int dimensions, int edge_max, int n) {
     float total_dist = 0;
-    PriorityQueue queue(n);// = new PriorityQueue(n);
-    node to_add = *root_node;
-    for (int i = 0; i < n; ++i) {
-        for (int j = 0; j < to_add.neighbor_nodes->connected.size(); ++j) {
-            float dist = get_distance(to_add, to_add.neighbor_nodes->connected[j], dimensions, false);
-            if (dist < to_add.neighbor_nodes->connected[j].closest_distance) {
-                to_add.neighbor_nodes->connected[j].closest_distance = dist;
-                queue.add(to_add.neighbor_nodes->connected[j]); //The new point is closer. May have to delete old
+    PriorityQueue queue(n);
+    node* root_node = nodes[0];
+    root_node->closest_distance = 0;
+    node* to_add = root_node;
+    float max_edge = 0;
+
+    if (dimensions == 0) {
+        random_device rd;
+        mt19937 gen(rd());
+        uniform_real_distribution<> dis(0, 1);
+
+        for (int i = 0; i < n - 1; ++i) {
+            float shortest = INFINITY;
+            for (int j = 0; j < n; ++j) {
+                float dist = dis(gen);
+                if (dist < nodes[j]->closest_distance) {
+                    if (nodes[j]->closest_distance == INFINITY) {
+                        nodes[j]->closest_distance = dist;
+                        queue.add(nodes[j]);
+                    }
+                    else {
+                        nodes[j]->closest_distance = dist;
+                        queue.resort(nodes[j]);
+                    }
+                }
+            }
+            total_dist += to_add->closest_distance;
+            to_add->closest_distance = -1; //Shows that it has been added to the mst
+            to_add = queue.pop();
+            while (to_add->closest_distance < 0) {
+                if (to_add == nullptr) break;
+                to_add = queue.pop();
+                if (to_add == nullptr) break;
             }
         }
-        total_dist += sqrt(to_add.closest_distance); //Add the total dist
-        to_add.closest_distance = -1; //Shows that it has been added to the mst
+        return total_dist;
+    }
+
+    for (int i = 0; i < n - 1; ++i) {
+        int conn_size = dimensions == 0 ? n : to_add->neighbor_nodes->connected.size();
+        for (int j = 0; j < conn_size; ++j) {
+            float dist = get_distance(to_add, to_add->neighbor_nodes->connected[j], true);
+            float closest_dist = dimensions == 0 ? get_distance(to_add, to_add, true) :
+                to_add->neighbor_nodes->connected[j]->closest_distance;
+            if (dist < closest_dist) {
+                if (to_add->neighbor_nodes->connected[j]->closest_distance == INFINITY) {
+                    to_add->neighbor_nodes->connected[j]->closest_distance = dist;
+                    queue.add(to_add->neighbor_nodes->connected[j]);
+                }
+                else {
+                    to_add->neighbor_nodes->connected[j]->closest_distance = dist;
+                    queue.resort(to_add->neighbor_nodes->connected[j]);
+                }
+            }
+        }
+
+        //Condition to keep track of longest edge for testing/optimization purposes
+        if (to_add->closest_distance > max_edge) {
+            max_edge = to_add->closest_distance;
+        }
+
+        total_dist += to_add->closest_distance;
+        to_add->closest_distance = -1; //Shows that it has been added to the mst
         to_add = queue.pop();
-        while (to_add.closest_distance < 0) {
+        while (to_add->closest_distance < 0) {
+            if (to_add == nullptr) break;
             to_add = queue.pop();
+            if (to_add == nullptr) break;
         }
     }
-    return total_dist / n;
+
+    if (edge_max == 1) {
+        return max_edge;
+    }
+
+    return total_dist;
 }
 
 /**
@@ -60,35 +142,53 @@ float Randmst::prim(node* root_node, int dimensions, int n) {
  * @param seed Optional seed for testing. Default random
  * @return Returns a vector of nodes
  */
-vector<Randmst::node> Randmst::generate_nodes(int dimensions, int points, unsigned int seed = time(NULL)) {
+vector<Randmst::node*> Randmst::generate_nodes(int dimensions, int points, unsigned int seed) {
     srand(seed);
-    vector<node> nodes;
+    vector<node*> nodes;
     for (int i = 0; i < points; ++i) {
         node* new_node = new node();
         coordinate* new_coordinate = new coordinate();
         vector<float> coordinates;
-        nodes.push_back(*new_node);
+        nodes.push_back(new_node);
+        random_device rd;
+        mt19937 gen(rd());
+        uniform_real_distribution<> dis(0, 1);
         for (int j = 0; j < dimensions; ++j) {
-            coordinates.push_back(rand());
+            coordinates.push_back(dis(gen));
         }
         new_coordinate->coordinates = coordinates;
-        *new_node->coordinates = *new_coordinate;
+        new_node->coordinates = new_coordinate;
     }
     return nodes;
 }
 
-void Randmst::generate_edges(vector<node> nodes, int dimensions, float max_length = 1) {
+void Randmst::generate_edges(vector<node*> nodes, int flag, float max_length = 1) {
+    if (nodes[0]->coordinates->coordinates.empty())
+        return;
     for (int i = 0; i < nodes.size(); ++i) {
         for (int j = i + 1; j < nodes.size(); ++j) {
-            float dist = get_distance(nodes[i], nodes[j], dimensions, false);
-            if (dist < max_length * max_length) {
-                nodes[i].neighbor_nodes->connected.push_back(nodes[j]);
-                nodes[j].neighbor_nodes->connected.push_back(nodes[i]);
+            if (nodes[i]->neighbor_nodes == nullptr) {
+                close_nodes* new_neighbors = new close_nodes();
+                vector<node*> new_node_lst;
+                new_neighbors->connected = new_node_lst;
+                nodes[i]->neighbor_nodes = new_neighbors;
+            }
+            if (nodes[j]->neighbor_nodes == nullptr) {
+                close_nodes* new_neighbors = new close_nodes();
+                vector<node*> new_node_lst;
+                new_neighbors->connected = new_node_lst;
+                nodes[j]->neighbor_nodes = new_neighbors;
+            }
+            float dist = get_distance(nodes[i], nodes[j], true);
+            if (dist < max_length) {
+                nodes[i]->neighbor_nodes->connected.push_back(nodes[j]);
+                nodes[j]->neighbor_nodes->connected.push_back(nodes[i]);
             }
         }
+        if (nodes[i]->neighbor_nodes->connected.empty())
+            nodes[i]->neighbor_nodes->connected.push_back(nodes[0]);
     }
 }
-
 
 /**
  * Gets the distance between two points
@@ -98,22 +198,20 @@ void Randmst::generate_edges(vector<node> nodes, int dimensions, float max_lengt
  * between point1 and point2
  * @return Returns either the sum of coordinates or the Euclidian distance between the points
  */
-float Randmst::get_distance(node node1, node node2, int dimensions, bool use_sqrt = false) {
+float Randmst::get_distance(node* node1, node* node2, bool use_sqrt = true) {
     float sum = 0;
-    float diff;
-    if (dimensions != 0) {
-        for (int i = 0; i < node1.coordinates->coordinates.size(); ++i)
-            diff = (node1.coordinates->coordinates[i] - node2.coordinates->coordinates[i]);
-        sum += (diff * diff);
-        if (use_sqrt)
-            return sqrt(sum);
-        return sum;
+    // Should never occur, but better safe than sorry
+    if (node1->coordinates->coordinates.size() == 0)
+        return 0.3;
+    for (int i = 0; i < node1->coordinates->coordinates.size(); ++i) {
+        float val = (node1->coordinates->coordinates[i] - node2->coordinates->coordinates[i]);
+        sum += val * val;
     }
-    else {
-        return rand();
-    }
+    if (use_sqrt)
+        return sqrt(sum);
+    return sum;
 }
 
-void Randmst::print_average() {
-    printf("Average: %f", average);
+float Randmst::get_run() {
+    return run;
 }
